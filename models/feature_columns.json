@@ -1,0 +1,20 @@
+[
+  "num_hyphens",
+  "num_underscores",
+  "num_fragments",
+  "has_at_symbol",
+  "has_ip_address",
+  "has_https",
+  "has_http_in_path",
+  "has_double_slash_redirect",
+  "has_port",
+  "num_subdomains",
+  "tld_length",
+  "is_shortened",
+  "suspicious_word_count",
+  "digit_ratio",
+  "letter_ratio",
+  "domain_entropy",
+  "domain_has_digits",
+  "domain_hyphen_count"
+]
