@@ -11,7 +11,7 @@ A machine learning system that scores a URL's phishing risk from **lexical and
 structural features only** — no live browsing, no content fetch — trained on
 **~188K labeled URLs** and deployed as an interactive Streamlit app.
 
-### 🔗 [**Live Demo →**](https://your-app-name.streamlit.app)  ·  ⚡ Runs instantly & offline (no network calls)
+### 🔗 [**Live Demo →**](https://phishing-url-risk-checker-classifier-5hx3evqqga7jop6tgnvonr.streamlit.app)  ·  ⚡ Runs instantly & offline (no network calls)
 
 > _Replace the link above with your Streamlit Community Cloud URL after deploying._
 
