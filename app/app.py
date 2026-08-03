@@ -8,14 +8,20 @@ Run locally with:
 
 import json
 import pickle
+import sys
 from pathlib import Path
 
 import pandas as pd
 import streamlit as st
-from features import extract_features
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODELS_DIR = BASE_DIR / "models"
+
+# Single-source the feature logic: the canonical implementation lives in
+# src/features.py and is shared verbatim between training and serving, so
+# there is no chance of train/serve feature drift.
+sys.path.insert(0, str(BASE_DIR / "src"))
+from features import extract_features  # noqa: E402
 
 st.set_page_config(page_title="Phishing URL Risk Checker", page_icon="🛡️", layout="centered")
 
@@ -73,12 +79,19 @@ if check_clicked and url_input.strip():
         # regardless of whether the real site actually uses HTTPS.
         url = "https://" + url
         st.caption(f"Interpreting input as: `{url}`")
-    feats = extract_features(url)
-    X = pd.DataFrame([feats])[feature_cols]
 
-    proba = model.predict_proba(X)[0]
-    risk_score = proba[1]  # probability of class 1 = phishing
-    prediction = model.predict(X)[0]
+    try:
+        feats = extract_features(url)
+        X = pd.DataFrame([feats])[feature_cols]
+        proba = model.predict_proba(X)[0]
+        risk_score = proba[1]  # probability of class 1 = phishing
+        prediction = model.predict(X)[0]
+    except Exception:  # noqa: BLE001 - never surface a raw traceback to the user
+        st.error(
+            "Couldn't analyze that input — it doesn't look like a URL this tool "
+            "can parse. Try something like `https://example.com/login`."
+        )
+        st.stop()
 
     st.markdown("---")
 

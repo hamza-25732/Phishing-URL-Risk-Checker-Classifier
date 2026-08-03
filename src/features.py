@@ -28,7 +28,8 @@ def _shannon_entropy(s: str) -> float:
     if not s:
         return 0.0
     probs = [s.count(c) / len(s) for c in set(s)]
-    return -sum(p * math.log2(p) for p in probs)
+    # `+ 0.0` normalizes a lone character's -0.0 result back to 0.0.
+    return -sum(p * math.log2(p) for p in probs) + 0.0
 
 
 def extract_features(url: str) -> dict:
@@ -36,7 +37,17 @@ def extract_features(url: str) -> dict:
 
     # Ensure a scheme so urlparse behaves consistently
     parse_target = url if "://" in url else "http://" + url
-    parsed = urlparse(parse_target)
+    try:
+        parsed = urlparse(parse_target)
+        # Force-materialize the netloc; malformed authorities (e.g. an
+        # unterminated IPv6 literal like "http://[") only raise on access.
+        _ = parsed.netloc
+    except ValueError:
+        # Unparseable URL: fall back to treating the whole string as an
+        # opaque path so counting-based features still work and we never
+        # raise into the caller.
+        parsed = urlparse("http://")
+        parsed = parsed._replace(path=url)
 
     domain = parsed.netloc.split(":")[0].lower()
     path = parsed.path or ""
